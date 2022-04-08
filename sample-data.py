@@ -9,6 +9,13 @@
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC 
+# MAGIC Sources
+# MAGIC - [Create Dataframe in Azure Databricks with Example](https://azurelib.com/create-dataframe-in-azure-databricks-with-example/#:~:text=6%20Final%20Thoughts-,How%20to%20Create%20a%20Dataframe%20in%20Databricks%20%3F,existing%20list%2C%20DataFrame%20and%20RDD.)
+
+# COMMAND ----------
+
 from pyspark.context import SparkContext
 from pyspark.sql.session import SparkSession
 
@@ -58,7 +65,7 @@ df_from_data.printSchema()
 
 # COMMAND ----------
 
-# Createa dataframe with createDataFrame() with Row type
+# Create dataframe with createDataFrame() with Row type
 from pyspark.sql import Row
 row_data = map(lambda x: Row(*x), data)
 df_from_data1 = spark.createDataFrame(row_data, columns)
@@ -91,3 +98,46 @@ schema = StructType([ \
 df_defined_schema = spark.createDataFrame(data=data2, schema=schema)
 df_defined_schema.show(truncate=False)
 df_defined_schema.printSchema()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC Create Random Uniform Distribution Dataframe
+
+# COMMAND ----------
+
+from pyspark.mllib.linalg import DenseVector
+from pyspark.mllib.random import RandomRDDs
+
+# Generate uniform vector RDDs and convert to dataframe
+df_uniform  = (RandomRDDs.uniformVectorRDD(sc, 10,10)
+                  .map(lambda a : DenseVector(a))
+                  .map(lambda a : (a,))
+                  .toDF(['features'])) # numpy.ndarray are not supported.
+
+df_uniform.show()
+df_uniform.printSchema()
+
+# COMMAND ----------
+
+# Vectors in a list to separate columns in df
+df_uniform_multicols  = RandomRDDs.uniformVectorRDD(sc, 100,5).map(lambda a : a.tolist()).toDF()
+df_uniform_multicols.show()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC Sample and Fake Existing VPOP Tables
+
+# COMMAND ----------
+
+# Example VRF table
+vrf_sdf = spark.table('vpop_refactored.silver_vrf')
+
+# COMMAND ----------
+
+?spark.table
+
+# COMMAND ----------
+
+
